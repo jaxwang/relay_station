@@ -20,6 +20,8 @@ def write_to_csv(client_ip,request_time, request_method, request_url, request_bo
     # 格式化成所需的日期字符串
     log_file = f"log-{year}-{month}.csv"
 
+    request_body = request_body.replace('\n', '')
+
     if response_status > 0:
         with open(log_file, mode='a', newline='') as file:
             writer = csv.writer(file)
