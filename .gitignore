@@ -1,0 +1,9 @@
+.DS_Store
+*/.DS_Store
+*.log
+*/*.log
+*.csv
+*/*.csv
+__pycache__/
+*@eaDir
+test.py
