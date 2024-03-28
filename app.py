@@ -52,7 +52,7 @@ def modify_request(request_body):
         if model == "sienna":
             json_data['model'] = 'mist'
         
-        return json.dumps(json_data)
+        return json.dumps(json_data,ensure_ascii=False).encode('utf-8')
     except json.JSONDecodeError:
         return request_body
 
@@ -68,7 +68,7 @@ def proxy(path):
     request_url = request.url
     request_body = request.get_data(as_text=True)  # 获取请求数据体
     client_ip = request.remote_addr  # 获取客户端IP地址
-
+    
     # 获取请求头
     headers = {key: value for (key, value) in request.headers}
 
@@ -90,14 +90,13 @@ def proxy(path):
 
     response_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
     response_status = response.status_code
-    response_body = response.content.decode('utf-8')  # 获取响应数据体
+    response_body = response.content.decode('utf-8',errors='ignore')  # 获取响应数据体
     # 记录请求和响应日志到CSV文件
-    # print(response.content)
 
     # 修改 JSON 中的内容
     modified_response_body = modify_response(response_body)
 
-    write_to_csv(client_ip,request_time, request_method, request_url, modified_request_body, response_time, response_body, response_status, modified_response_body )
+    write_to_csv(client_ip,request_time, request_method, request_url,  request_body, response_time, response_body, response_status, modified_response_body )
 
     # 返回响应
     return modified_response_body, response_status, response.headers.items()
