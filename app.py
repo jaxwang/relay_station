@@ -34,7 +34,8 @@ def modify_json(response_body):
         message = json_data.get('message', {})
         content = message.get('content', '')
 
-        modified_content = re.sub(r'\*[^*]*\*|\[[^\]]*\]|\([^)]*\)', '', content)
+        modified_content = re.sub(r"^[A-Za-z]+ \((.*?)\): ", '', content)
+        modified_content = re.sub(r'\*[^*]*\*|\[[^\]]*\]|\([^)]*\)', '', modified_content)
         
 	# 更新 JSON 数据中的内容
         message['content'] = modified_content
