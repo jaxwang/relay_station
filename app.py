@@ -9,7 +9,7 @@ import re
 app = Flask(__name__)
 
 # 保存日志到CSV文件
-def write_to_csv(request_time, request_method, request_url, request_body, response_time, response_status, response_body,modified_response_body):
+def write_to_csv(client_ip,request_time, request_method, request_url, request_body, response_time, response_body,response_status,modified_response_body):
     # 获取当前日期
     current_date = datetime.datetime.now()
 
@@ -20,10 +20,10 @@ def write_to_csv(request_time, request_method, request_url, request_body, respon
     # 格式化成所需的日期字符串
     log_file = f"log-{year}-{month}.csv"
 
-    if response_status == 200:
+    if response_status > 0:
         with open(log_file, mode='a', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([request_time, request_method, request_url, request_body, response_time, response_status, response_body, modified_response_body])
+            writer.writerow([client_ip,request_time, request_method, request_url, request_body, response_time, response_body, response_status,  modified_response_body])
 
 # 修改 JSON 中的内容
 def modify_json(response_body):
@@ -51,6 +51,7 @@ def proxy(path):
     request_method = request.method
     request_url = request.url
     request_body = request.get_data(as_text=True)  # 获取请求数据体
+    client_ip = request.remote_addr  # 获取客户端IP地址
 
     # 获取请求头
     headers = {key: value for (key, value) in request.headers}
@@ -78,7 +79,7 @@ def proxy(path):
     # 修改 JSON 中的内容
     modified_response_body = modify_json(response_body)
 
-    write_to_csv(request_time, request_method, request_url, request_body, response_time, response_status, response_body, modified_response_body )
+    write_to_csv(client_ip,request_time, request_method, request_url, request_body, response_time, response_body, response_status, modified_response_body )
 
     # 返回响应
     return modified_response_body, response_status, response.headers.items()
