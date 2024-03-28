@@ -1,17 +1,19 @@
 from flask import Flask, request
+from datetime import datetime
 import requests
 import csv
-import time
 import json
-import datetime
 import re
+import pytz
 
 app = Flask(__name__)
+
+timezone = pytz.timezone('Asia/Shanghai')
 
 # 保存日志到CSV文件
 def write_to_csv(client_ip,request_time, request_method, request_url, request_body, response_time, response_body,response_status,modified_response_body):
     # 获取当前日期
-    current_date = datetime.datetime.now()
+    current_date = datetime.now(timezone)
 
     # 获取当前日期所在年份和月份
     year = current_date.strftime('%Y')
@@ -37,7 +39,7 @@ def modify_response(response_body):
         modified_content = re.sub(r"^[A-Za-z]+ \((.*?)\): ", '', content)
         modified_content = re.sub(r'\*[^*]*\*|\[[^\]]*\]|\([^)]*\)', '', modified_content)
         
-	# 更新 JSON 数据中的内容
+        # 更新 JSON 数据中的内容
         message['content'] = modified_content
         json_data['message'] = message
         return json.dumps(json_data, ensure_ascii=False)
@@ -63,7 +65,7 @@ target_domain = "http://127.0.0.1:11434"
 @app.route('/api/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/api/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def proxy(path):
-    request_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    request_time = datetime.now(timezone).strftime('%Y-%m-%d %H:%M:%S')
     request_method = request.method
     request_url = request.url
     request_body = request.get_data(as_text=True)  # 获取请求数据体
@@ -88,7 +90,7 @@ def proxy(path):
         cookies=request.cookies
     )
 
-    response_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    response_time = datetime.now(timezone).strftime('%Y-%m-%d %H:%M:%S')
     response_status = response.status_code
     response_body = response.content.decode('utf-8',errors='ignore')  # 获取响应数据体
     # 记录请求和响应日志到CSV文件
