@@ -25,10 +25,10 @@ def write_to_csv(client_ip,request_time, request_method, request_url, request_bo
     if response_status > 0:
         with open(log_file, mode='a', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([client_ip,request_time, request_method, request_url, request_body, response_time, response_body, response_status,  modified_response_body])
+            writer.writerow([request_time, client_ip, request_method, request_url, request_body, response_time, response_body, response_status,  modified_response_body])
 
 # 修改 JSON 中的内容
-def modify_json(response_body):
+def modify_response(response_body):
     try:
         json_data = json.loads(response_body)
         message = json_data.get('message', {})
@@ -43,6 +43,19 @@ def modify_json(response_body):
         return json.dumps(json_data, ensure_ascii=False)
     except json.JSONDecodeError:
         return response_body
+
+def modify_request(request_body):
+    try:
+        json_data = json.loads(request_body)
+        model = json_data.get('model', '')
+        
+        if model == "sienna":
+            json_data['model'] = 'mist'
+        
+        return json.dumps(json_data, ensure_ascii=False)
+    except json.JSONDecodeError:
+        return request_body
+
 
 # 定义目标域名
 target_domain = "http://127.0.0.1:11434"
@@ -63,12 +76,14 @@ def proxy(path):
     url = f"{target_domain}/api/{path}"
     # print(request_body)   
 
+    modified_request_body = modify_request(request_body)
+
     # 转发请求
     response = requests.request(
         method=request.method,
         url=url,
         headers=headers,
-        data=request.get_data(),
+        data=modified_request_body,
         params=request.args.to_dict(),
         cookies=request.cookies
     )
@@ -80,9 +95,9 @@ def proxy(path):
     # print(response.content)
 
     # 修改 JSON 中的内容
-    modified_response_body = modify_json(response_body)
+    modified_response_body = modify_response(response_body)
 
-    write_to_csv(client_ip,request_time, request_method, request_url, request_body, response_time, response_body, response_status, modified_response_body )
+    write_to_csv(client_ip,request_time, request_method, request_url, modified_request_body, response_time, response_body, response_status, modified_response_body )
 
     # 返回响应
     return modified_response_body, response_status, response.headers.items()
