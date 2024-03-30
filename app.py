@@ -52,7 +52,7 @@ def modify_request(request_body):
         model = json_data.get('model', '')
         
         if model == "sienna":
-            json_data['model'] = 'mist2_1'
+            json_data['model'] = 'mist2_2'
         
         return json.dumps(json_data,ensure_ascii=False).encode('utf-8')
     except json.JSONDecodeError:
