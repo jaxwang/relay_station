@@ -36,9 +36,13 @@ def modify_response(response_body):
         message = json_data.get('message', {})
         content = message.get('content', '')
 
+        # 匹配掉`Name(actions):` 
         modified_content = re.sub(r"^[A-Za-z]+ \((.*?)\): ", '', content)
+        # 匹配掉 `**` 和 `()`
         modified_content = re.sub(r'\*[^*]*\*|\[[^\]]*\]|\([^)]*\)', '', modified_content)
-        
+        # 匹配掉`"`
+        modified_content = modified_content.replace('"', '')
+
         # 更新 JSON 数据中的内容
         message['content'] = modified_content
         json_data['message'] = message
