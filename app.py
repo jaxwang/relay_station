@@ -1,10 +1,12 @@
 from flask import Flask, request
 from datetime import datetime
+
 import requests
 import csv
 import json
 import re
 import pytz
+import random
 
 app = Flask(__name__)
 
@@ -40,6 +42,9 @@ def modify_response(response_body):
         modified_content = re.sub(r"^[A-Za-z]+ \((.*?)\): ", '', content)
         # 匹配掉 `**` 和 `()`
         modified_content = re.sub(r'\*[^*]*\*|\[[^\]]*\]|\([^)]*\)', '', modified_content)
+        # 匹配标签
+        modified_content = re.sub(r'#\w+', '', modified_content)
+
         # 匹配掉`"`
         modified_content = modified_content.replace('"', '')
 
@@ -56,7 +61,11 @@ def modify_request(request_body):
         model = json_data.get('model', '')
         
         if model == "sienna":
-            json_data['model'] = 'mist2_2'
+            json_data['model'] = 'streamer1'
+
+        random_seed = random.randint(1, 1000)
+        options_dict = {"seed": random_seed }
+        json_data["options"] = options_dict
         
         return json.dumps(json_data,ensure_ascii=False).encode('utf-8')
     except json.JSONDecodeError:
