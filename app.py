@@ -61,7 +61,7 @@ def modify_request(request_body):
         model = json_data.get('model', '')
         
         if model == "sienna":
-            json_data['model'] = 'streamer_cbh'
+            json_data['model'] = 'streamer_v1'
 
         random_seed = random.randint(1, 1000)
         options_dict = {"seed": random_seed }
