@@ -38,7 +38,7 @@ def split_and_combine(text):
     current_string = ""
     for sentence in sentences:
         current_string += sentence
-        if len(current_string) >= 100: 
+        if len(current_string) >= 80: 
             break
     return current_string
 
@@ -69,7 +69,8 @@ def modify_request(request_body):
         if model == "sienna":
             json_data['model'] = 'streamer_v1'
 
-        random_seed = random.randint(1, 1000)
+        #random_seed = random.randint(1, 1000)
+        random_seed = 100
         options_dict = {"seed": random_seed }
         json_data["options"] = options_dict
         
