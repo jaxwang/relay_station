@@ -53,7 +53,7 @@ def modify_response(response_body):
         modified_content = re.sub(r'#\w+', '', modified_content)
         modified_content = modified_content.replace('"', '')
 
-        modified_content = split_and_combine(modified_content)
+        modified_content = split_and_combine(modified_content.strip())
 
         message['content'] = modified_content
         json_data['message'] = message
