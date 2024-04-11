@@ -70,6 +70,7 @@ def modify_request(request_body):
             json_data['model'] = 'streamer_v1'
 
         #random_seed = random.randint(1, 1000)
+        
         random_seed = 100
         options_dict = {"seed": random_seed }
         json_data["options"] = options_dict
