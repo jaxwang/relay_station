@@ -12,16 +12,11 @@ app = Flask(__name__)
 
 timezone = pytz.timezone('Asia/Shanghai')
 
-# 保存日志到CSV文件
 def write_to_csv(client_ip,request_time, request_method, request_url, request_body, response_time, response_body,response_status,modified_response_body):
-    # 获取当前日期
+  
     current_date = datetime.now(timezone)
-
-    # 获取当前日期所在年份和月份
     year = current_date.strftime('%Y')
     month = current_date.strftime('%m')
-
-    # 格式化成所需的日期字符串
     log_file = f"log-{year}-{month}.csv"
 
     request_body = request_body.replace('\n', '')
@@ -31,24 +26,35 @@ def write_to_csv(client_ip,request_time, request_method, request_url, request_bo
             writer = csv.writer(file)
             writer.writerow([request_time, client_ip, request_method, request_url, request_body, response_time, response_body, response_status,  modified_response_body])
 
-# 修改 JSON 中的内容
+def split_and_combine(text):
+    sentences = []
+    current_sentence = ""
+    for char in text:
+        current_sentence += char
+        if char in ['.', '?', '!']:
+            sentences.append(current_sentence)
+            current_sentence = ""
+
+    current_string = ""
+    for sentence in sentences:
+        current_string += sentence
+        if len(current_string) >= 100: 
+            break
+    return current_string
+
 def modify_response(response_body):
     try:
         json_data = json.loads(response_body)
         message = json_data.get('message', {})
         content = message.get('content', '')
 
-        # 匹配掉`Name(actions):` 
         modified_content = re.sub(r"^[A-Za-z]+ \((.*?)\): ", '', content)
-        # 匹配掉 `**` 和 `()`
         modified_content = re.sub(r'\*[^*]*\*|\[[^\]]*\]|\([^)]*\)', '', modified_content)
-        # 匹配标签
         modified_content = re.sub(r'#\w+', '', modified_content)
-
-        # 匹配掉`"`
         modified_content = modified_content.replace('"', '')
 
-        # 更新 JSON 数据中的内容
+        modified_content = split_and_combine(modified_content)
+
         message['content'] = modified_content
         json_data['message'] = message
         return json.dumps(json_data, ensure_ascii=False)
