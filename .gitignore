@@ -6,4 +6,5 @@
 */*.csv
 __pycache__/
 *@eaDir
-test.py
+test*
+output
