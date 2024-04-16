@@ -34,6 +34,9 @@ def split_and_combine(text):
         if char in ['.', '?', '!']:
             sentences.append(current_sentence)
             current_sentence = ""
+    
+    if len(sentences) == 0:
+        return text
 
     current_string = ""
     for sentence in sentences:
