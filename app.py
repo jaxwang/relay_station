@@ -56,9 +56,9 @@ def modify_response(response_body):
         modified_content = re.sub(r'#\w+', '', modified_content)
         modified_content = modified_content.replace('"', '')
 
-        modified_content = split_and_combine(modified_content.strip())
+        # modified_content = split_and_combine(modified_content.strip())
 
-        message['content'] = modified_content
+        message['content'] = modified_content.strip()
         json_data['message'] = message
         return json.dumps(json_data, ensure_ascii=False)
     except json.JSONDecodeError:
